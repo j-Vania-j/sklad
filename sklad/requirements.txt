@@ -1,0 +1,6 @@
+Django
+psycopg2-binary
+python-dotenv
+gunicorn
+django-tailwind
+django-allauth

@@ -1,0 +1,40 @@
+# --- Python ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+venv/
+env/
+.venv/
+pip-delete-this-directory.txt
+*.log
+*.pot
+*.pyc
+.db.sqlite3
+
+# --- Django ---
+*.log
+media/
+static/
+*.pot
+
+# --- IDE ---
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# --- Docker ---
+.dockerignore
+Dockerfile
+docker-compose*.yml
+
+# --- Node.js / Tailwind (САМОЕ ВАЖНОЕ) ---
+node_modules/
+theme/static_src/node_modules/
+npm-debug.log
+yarn-error.log
+
+# --- Env ---
+.env
