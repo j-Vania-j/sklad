@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'theme',
     'allauth',
     'allauth.account',
+    "sklad_logic",
 ]
 
 MIDDLEWARE = [
@@ -115,7 +116,7 @@ AUTHENTICATION_BACKENDS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'RU'
 
 TIME_ZONE = 'UTC'
 
