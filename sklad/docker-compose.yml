@@ -1,41 +1,40 @@
 
 services:
-  # --- Сервис Базы Данных ---
+ 
   db:
-    image: postgres:15  # Образ PostgreSQL версии 15
+    image: postgres:15  
     volumes:
-      # Сохраняем данные на компьютере, чтобы они не пропали после остановки
       - postgres_data:/var/lib/postgresql/data
     env_file:
-      - .env  # Подгружаем переменные из твоего файла .env
+      - .env  
     ports:
-      - "5432:5432"  # Доступ к БД с твоего компьютера (для отладки)
+      - "5432:5432" 
     networks:
       - app_network
 
-  # --- Сервис Django (Web) ---
+  
   web:
-    build: .  # Собираем образ из Dockerfile в текущей папке
+    build: .  
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
-      # Синхронизируем папку проекта (изменения кода видны сразу)
+      
       - .:/app
     ports:
       - "8000:8000"
     env_file:
       - .env
     environment:
-      # Переопределяем HOST. Внутри сети Docker имя базы данных — 'db'
+      
       - POSTGRES_HOST=db
     depends_on:
-      - db  # Запускаем базу данных раньше, чем веб-приложение
+      - db  
     networks:
       - app_network
 
-# Создаем том для постоянного хранения данных БД
+
 volumes:
   postgres_data:
 
-# Создаем изолированную сеть для связи контейнеров
+
 networks:
   app_network:
