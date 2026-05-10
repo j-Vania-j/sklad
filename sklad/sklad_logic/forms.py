@@ -1,24 +1,25 @@
 from django import forms
 from .models import Products, Categories
 
+
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Products
         fields = "__all__"
         widgets = {
             'name': forms.TextInput(attrs={
-                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200',
+                'class': 'w-full px-12 py-8 bg-transparent border border-dew rounded-chips text-slate-ink placeholder-ash outline-none focus:border-slate-ink transition-colors',
                 'placeholder': 'Например: Coca-Cola 0.5л'
             }),
             'sku': forms.TextInput(attrs={
-                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200',
+                'class': 'w-full px-12 py-8 bg-transparent border border-dew rounded-chips text-slate-ink placeholder-ash outline-none focus:border-slate-ink transition-colors',
                 'placeholder': 'Артикул'
             }),
             'category': forms.Select(attrs={
-                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200'
+                'class': 'w-full px-12 py-8 bg-transparent border border-dew rounded-chips text-slate-ink outline-none focus:border-slate-ink transition-colors'
             }),
             'unit': forms.TextInput(attrs={
-                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200',
+                'class': 'w-full px-12 py-8 bg-transparent border border-dew rounded-chips text-slate-ink placeholder-ash outline-none focus:border-slate-ink transition-colors',
                 'placeholder': 'шт, кг, л'
             }),
         }
@@ -29,17 +30,18 @@ class ProductForm(forms.ModelForm):
             'unit': 'Единица измерения',
         }
 
+
 class CategoryForm(forms.ModelForm):
     class Meta:
         model = Categories
         fields = "__all__"
         widgets = {
             'name': forms.TextInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200 bg-white text-gray-900 placeholder-gray-400',
+                'class': 'w-full px-12 py-8 bg-transparent border border-dew rounded-chips text-slate-ink placeholder-ash outline-none focus:border-slate-ink transition-colors',
                 'placeholder': 'Например: Напитки, Электроника, Одежда'
             }),
             'parent': forms.Select(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition duration-200 bg-white text-gray-900',
+                'class': 'w-full px-12 py-8 bg-transparent border border-dew rounded-chips text-slate-ink outline-none focus:border-slate-ink transition-colors',
             }),
         }
         labels = {

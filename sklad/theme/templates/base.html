@@ -1,19 +1,36 @@
 {% load static tailwind_tags %}
 <!DOCTYPE html>
-<html lang="en">
-	<head>
-    <title>Django Tailwind</title>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<meta http-equiv="X-UA-Compatible" content="ie=edge">
-		{% tailwind_css %}
-	</head>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>{% block title %}Складская система{% endblock %}</title>
+    {% tailwind_css %}
+</head>
+<body class="bg-parchment text-slate-ink antialiased min-h-screen flex flex-col font-inter">
+    <nav class="bg-forest-floor sticky top-0 z-50">
+        <div class="px-12">
+            <div class="flex justify-between h-10 items-center">
+                <div class="flex items-center gap-8">
+                    <span class="text-body font-semibold text-white tracking-tight">Складская Система</span>
+                </div>
+                <div class="flex items-center gap-8">
+                    <a href="#" class="text-body text-white/80 hover:text-white transition-colors">Главная</a>
+                    <a href="{% url 'products_list' %}" class="px-[16px] py-[6px] bg-amber-nav text-white rounded-buttons text-body-sm font-medium transition-colors">Товары</a>
+                </div>
+            </div>
+        </div>
+    </nav>
 
-	<body class="bg-gray-50 font-serif leading-normal tracking-normal">
-		<div class="container mx-auto">
-			<section class="flex items-center justify-center h-screen">
-				<h1 class="text-5xl">Django + Tailwind = ❤️</h1>
-			</section>
-		</div>
-	</body>
+    {% block content %}{% endblock %}
+
+    <footer class="bg-forest-floor mt-auto">
+        <div class="py-14 px-12">
+            <p class="text-center text-caption text-fog/60">
+                Курсовая работа по дисциплине &laquo;Базы данных&raquo; &bull; Тема №92 &laquo;Торговый склад&raquo;
+            </p>
+        </div>
+    </footer>
+</body>
 </html>

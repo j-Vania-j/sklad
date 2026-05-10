@@ -1,100 +1,72 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Список товаров | Склад</title>
-    {% load tailwind_tags %}
-    {% tailwind_css %}
-</head>
-<body class="bg-gray-100 min-h-screen">
+{% extends "base.html" %}
 
-    <!-- Навигация -->
-    <nav class="bg-white shadow-sm border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <span class="text-xl font-bold text-blue-600">📦 Складская Система</span>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <a href="#" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Главная</a>
-                    <a href="{% url 'products_list' %}" class="text-blue-600 bg-blue-50 px-3 py-2 rounded-md text-sm font-medium">Товары</a>
-                </div>
-            </div>
-        </div>
-    </nav>
+{% block title %}Список товаров | Склад{% endblock %}
 
-    <div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
-        
-        <!-- Заголовок и кнопка добавления -->
-        <div class="md:flex md:items-center md:justify-between mb-8">
-            <div class="flex-1 min-w-0">
-                <h2 class="text-3xl font-bold leading-7 text-gray-900 sm:text-4xl sm:truncate">
+{% block content %}
+<main class="py-32 px-12">
+    <div class="max-w-5xl mx-auto">
+        <div class="flex items-center justify-between mb-20">
+            <div>
+                <h1 class="text-[22px] font-bold text-slate-ink tracking-[-0.33px]">
                     Товары
-                </h2>
-                <p class="mt-2 text-sm text-gray-600">
-                    Всего позиций: <span class="font-semibold text-blue-600">{{ object_list.count }}</span>
+                </h1>
+                <p class="mt-5 text-body-sm text-ash">
+                    Всего позиций: <span class="font-semibold text-slate-ink">{{ object_list.count }}</span>
                 </p>
             </div>
-            <div class="mt-4 flex md:mt-0 md:ml-4">
-                <a href="{% url 'products_add' %}" 
-                   class="inline-flex items-center px-5 py-3 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-200">
-                    <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                    </svg>
+            <div>
+                <a href="{% url 'products_add' %}" class="inline-flex items-center px-16 py-[8px] bg-sprout text-white rounded-buttons text-body-sm font-semibold transition-colors hover:brightness-110">
                     Добавить товар
                 </a>
             </div>
         </div>
 
-        <!-- Таблица товаров -->
-        <div class="bg-white shadow-xl rounded-xl overflow-hidden border border-gray-200">
+        <div class="bg-white rounded-cards overflow-hidden">
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
+                <table class="w-full divide-y divide-dew">
+                    <thead>
                         <tr>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            <th scope="col" class="px-12 py-8 text-left text-caption font-medium text-ash uppercase">
                                 Артикул
                             </th>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            <th scope="col" class="px-12 py-8 text-left text-caption font-medium text-ash uppercase">
                                 Наименование
                             </th>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            <th scope="col" class="px-12 py-8 text-left text-caption font-medium text-ash uppercase">
                                 Категория
                             </th>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            <th scope="col" class="px-12 py-8 text-left text-caption font-medium text-ash uppercase">
                                 Ед. изм.
                             </th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tbody class="divide-y divide-dew">
                         {% for product in object_list %}
-                        <tr class="hover:bg-gray-50 transition duration-150">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <code class="px-2 py-1 bg-gray-100 rounded text-sm text-blue-600 font-mono">
+                        <tr class="hover:bg-parchment transition-colors">
+                            <td class="px-12 py-8 whitespace-nowrap">
+                                <code class="px-5 py-1.5 bg-parchment rounded-badges text-caption text-slate-ink">
                                     {{ product.sku }}
                                 </code>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900">{{ product.name }}</div>
+                            <td class="px-12 py-8 whitespace-nowrap">
+                                <div class="text-body-sm font-medium text-slate-ink">{{ product.name }}</div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
+                            <td class="px-12 py-8 whitespace-nowrap">
+                                <span class="px-5 py-1.5 inline-flex text-caption font-medium rounded-badges bg-sprout/10 text-sprout">
                                     {{ product.category.name|default:"—" }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <td class="px-12 py-8 whitespace-nowrap text-body-sm text-ash">
                                 {{ product.unit|default:"шт" }}
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="4" class="px-6 py-12 text-center">
-                                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
-                                </svg>
-                                <p class="mt-2 text-gray-500 text-lg">Список товаров пуст</p>
-                                <a href="{% url 'products_add' %}" class="mt-4 inline-block text-blue-600 hover:text-blue-800 font-medium">Добавить первый товар →</a>
+                            <td colspan="4" class="px-12 py-32 text-center">
+                                <p class="text-body-sm text-ash">Список товаров пуст</p>
+                                <a href="{% url 'products_add' %}" class="mt-6 inline-block px-[24px] py-[8px] text-sprout border border-sprout rounded-buttons text-body-sm font-medium transition-colors hover:bg-sprout/5">
+                                    Добавить первый товар
+                                </a>
                             </td>
                         </tr>
                         {% endfor %}
@@ -103,16 +75,14 @@
             </div>
         </div>
 
-        <!-- Возврат на главную -->
-        <div class="mt-8">
-            <a href="#" class="text-sm text-gray-600 hover:text-gray-900 flex items-center">
-                <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="mt-16">
+            <a href="#" class="text-body-sm text-ash hover:text-slate-ink transition-colors inline-flex items-center gap-5">
+                <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                 </svg>
                 Вернуться на панель управления
             </a>
         </div>
     </div>
-
-</body>
-</html>
+</main>
+{% endblock %}
