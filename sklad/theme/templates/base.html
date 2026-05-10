@@ -13,11 +13,11 @@
         <div class="px-12">
             <div class="flex justify-between h-10 items-center">
                 <div class="flex items-center gap-8">
-                    <span class="text-body font-semibold text-white tracking-tight">Складская Система</span>
+                    <a href="{% url 'sklad_logic:dashboard' %}" class="text-body font-semibold text-white tracking-tight hover:text-white/80 transition-colors">Складская Система</a>
                 </div>
                 <div class="flex items-center gap-8">
-                    <a href="#" class="text-body text-white/80 hover:text-white transition-colors">Главная</a>
-                    <a href="{% url 'products_list' %}" class="px-[16px] py-[6px] bg-amber-nav text-white rounded-buttons text-body-sm font-medium transition-colors">Товары</a>
+                    <a href="{% url 'sklad_logic:dashboard' %}" class="text-body text-white/80 hover:text-white transition-colors">Главная</a>
+                    <a href="{% url 'sklad_logic:products_list' %}" class="px-[16px] py-[6px] bg-amber-nav text-white rounded-buttons text-body-sm font-medium transition-colors">Товары</a>
                 </div>
             </div>
         </div>

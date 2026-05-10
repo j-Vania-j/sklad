@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Категории | Склад{% endblock %}
+
+{% block content %}
+<main class="py-32 px-12">
+    <div class="max-w-5xl mx-auto">
+        <div class="flex items-center justify-between mb-20">
+            <div>
+                <h1 class="text-[22px] font-bold text-slate-ink tracking-[-0.33px]">
+                    Категории товаров
+                </h1>
+                <p class="mt-5 text-body-sm text-ash">
+                    Дерево категорий с вложенностью
+                </p>
+            </div>
+            <div>
+                <a href="{% url 'sklad_logic:add_category' %}" class="inline-flex items-center px-16 py-[8px] bg-sprout text-white rounded-buttons text-body-sm font-semibold transition-colors hover:brightness-110">
+                    + Категорию
+                </a>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-cards overflow-hidden">
+            <table class="w-full divide-y divide-dew">
+                <thead>
+                    <tr>
+                        <th scope="col" class="px-12 py-8 text-left text-caption font-medium text-ash uppercase">Название</th>
+                        <th scope="col" class="px-12 py-8 text-left text-caption font-medium text-ash uppercase">Уровень</th>
+                        <th scope="col" class="px-12 py-8 text-left text-caption font-medium text-ash uppercase">Родитель</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-dew">
+                    {% for cat in categories %}
+                    <tr class="hover:bg-parchment transition-colors">
+                        <td class="px-12 py-8">
+                            <span class="text-body-sm font-medium text-slate-ink">{{ cat.name }}</span>
+                        </td>
+                        <td class="px-12 py-8 whitespace-nowrap">
+                            <span class="px-5 py-1.5 inline-flex text-caption font-medium rounded-badges bg-sprout/10 text-sprout">{{ cat.level }}</span>
+                        </td>
+                        <td class="px-12 py-8 whitespace-nowrap text-body-sm text-ash">
+                            {{ cat.parent_id|default:"—" }}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="px-12 py-32 text-center">
+                            <p class="text-body-sm text-ash">Нет ни одной категории</p>
+                            <a href="{% url 'sklad_logic:add_category' %}" class="mt-6 inline-block px-[24px] py-[8px] text-sprout border border-sprout rounded-buttons text-body-sm font-medium transition-colors hover:bg-sprout/5">
+                                Создать первую категорию
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-16">
+            <a href="{% url 'sklad_logic:dashboard' %}" class="text-body-sm text-ash hover:text-slate-ink transition-colors inline-flex items-center gap-5">
+                <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                На главную
+            </a>
+        </div>
+    </div>
+</main>
+{% endblock %}

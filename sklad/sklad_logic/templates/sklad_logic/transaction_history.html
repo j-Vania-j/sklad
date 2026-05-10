@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}История | Склад{% endblock %}
+
+{% block content %}
+<main class="py-32 px-12">
+    <div class="max-w-7xl mx-auto">
+        <div class="mb-20">
+            <h1 class="text-[22px] font-bold text-slate-ink tracking-[-0.33px]">История движений</h1>
+            <p class="mt-5 text-body-sm text-ash">Журнал всех операций с товарами</p>
+        </div>
+
+        <div class="bg-white rounded-cards overflow-hidden">
+            <table class="w-full divide-y divide-dew">
+                <thead>
+                    <tr>
+                        <th class="px-12 py-8 text-left text-caption font-medium text-ash uppercase">Дата</th>
+                        <th class="px-12 py-8 text-left text-caption font-medium text-ash uppercase">Тип</th>
+                        <th class="px-12 py-8 text-left text-caption font-medium text-ash uppercase">Товар</th>
+                        <th class="px-12 py-8 text-left text-caption font-medium text-ash uppercase">Склад</th>
+                        <th class="px-12 py-8 text-right text-caption font-medium text-ash uppercase">Кол-во</th>
+                        <th class="px-12 py-8 text-left text-caption font-medium text-ash uppercase">Комментарий</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-dew">
+                    {% for t in transactions %}
+                    <tr class="hover:bg-parchment transition-colors">
+                        <td class="px-12 py-8 whitespace-nowrap text-body-sm text-ash">{{ t.timestamp|date:"d.m.Y H:i" }}</td>
+                        <td class="px-12 py-8 whitespace-nowrap">
+                            {% if t.type == "IN" %}
+                            <span class="px-5 py-1.5 inline-flex text-caption font-semibold rounded-badges bg-sprout/10 text-sprout">Приход</span>
+                            {% else %}
+                            <span class="px-5 py-1.5 inline-flex text-caption font-semibold rounded-badges bg-tangerine-cta/10 text-tangerine-cta">Расход</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-12 py-8 text-body-sm font-medium text-slate-ink">{{ t.product }}</td>
+                        <td class="px-12 py-8 text-body-sm text-ash">{{ t.warehouse }}</td>
+                        <td class="px-12 py-8 text-body-sm text-right font-semibold text-slate-ink">{{ t.quantity }}</td>
+                        <td class="px-12 py-8 text-body-sm text-ash">{{ t.comment }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6" class="px-12 py-32 text-center text-body-sm text-ash">История пуста</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-16">
+            <a href="{% url 'sklad_logic:dashboard' %}" class="text-body-sm text-ash hover:text-slate-ink transition-colors inline-flex items-center gap-5">
+                <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                На главную
+            </a>
+        </div>
+    </div>
+</main>
+{% endblock %}

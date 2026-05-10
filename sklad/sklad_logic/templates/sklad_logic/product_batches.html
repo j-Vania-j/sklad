@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Партии {{ product.name }} | Склад{% endblock %}
+
+{% block content %}
+<main class="py-32 px-12">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex items-center justify-between mb-20">
+            <div>
+                <h1 class="text-[22px] font-bold text-slate-ink tracking-[-0.33px]">{{ product.name }}</h1>
+                <p class="mt-5 text-body-sm text-ash">Артикул: {{ product.sku }} — все активные партии</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-cards overflow-hidden">
+            <table class="w-full divide-y divide-dew">
+                <thead>
+                    <tr>
+                        <th class="px-12 py-8 text-left text-caption font-medium text-ash uppercase">Склад</th>
+                        <th class="px-12 py-8 text-left text-caption font-medium text-ash uppercase">Поставщик</th>
+                        <th class="px-12 py-8 text-right text-caption font-medium text-ash uppercase">Остаток</th>
+                        <th class="px-12 py-8 text-right text-caption font-medium text-ash uppercase">Цена</th>
+                        <th class="px-12 py-8 text-right text-caption font-medium text-ash uppercase">Срок годности</th>
+                        <th class="px-12 py-8 text-right text-caption font-medium text-ash uppercase">Создана</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-dew">
+                    {% for b in batches %}
+                    <tr class="hover:bg-parchment transition-colors">
+                        <td class="px-12 py-8 text-body-sm font-medium text-slate-ink">{{ b.warehouse }}</td>
+                        <td class="px-12 py-8 text-body-sm text-ash">{{ b.supplier }}</td>
+                        <td class="px-12 py-8 text-body-sm text-right font-semibold text-slate-ink">{{ b.quantity }}</td>
+                        <td class="px-12 py-8 text-body-sm text-right text-ash">{{ b.price }}</td>
+                        <td class="px-12 py-8 text-body-sm text-right {% if b.expire < today %}text-tangerine-cta{% else %}text-ash{% endif %}">{{ b.expire|date:"d.m.Y" }}</td>
+                        <td class="px-12 py-8 text-body-sm text-right text-ash">{{ b.created|date:"d.m.Y" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6" class="px-12 py-32 text-center text-body-sm text-ash">Нет активных партий</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-16">
+            <a href="{% url 'sklad_logic:products_list' %}" class="text-body-sm text-ash hover:text-slate-ink transition-colors inline-flex items-center gap-5">
+                <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                К списку товаров
+            </a>
+        </div>
+    </div>
+</main>
+{% endblock %}

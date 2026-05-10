@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Расход товара | Склад{% endblock %}
+
+{% block content %}
+<main class="py-32 px-12">
+    <div class="max-w-7xl mx-auto">
+        <div class="text-center mb-20">
+            <h1 class="text-[22px] font-bold text-slate-ink tracking-[-0.33px]">Расходная накладная</h1>
+            <p class="mt-6 text-body-sm text-ash">Списание товара со склада по методу FEFO — сначала истекающие партии</p>
+        </div>
+
+        <div class="max-w-3xl mx-auto mb-32">
+            <form method="post" class="space-y-16" novalidate>
+                {% csrf_token %}
+                <div class="space-y-14">
+                    {% for field in form %}<div>
+                        <label class="block text-body-sm font-medium text-slate-ink mb-5">{{ field.label }}{% if field.field.required %}<span class="text-tangerine-cta ml-4">*</span>{% endif %}</label>
+                        {{ field }}
+                        {% for error in field.errors %}<p class="mt-5 text-caption text-tangerine-cta">{{ error }}</p>{% endfor %}
+                    </div>{% endfor %}
+                </div>
+                <div class="pt-16 border-t border-dew">
+                    <div class="flex flex-col sm:flex-row gap-10">
+                        <button type="submit" class="flex-1 inline-flex justify-center items-center px-20 py-[8px] bg-sprout text-white rounded-buttons text-body-sm font-semibold transition-colors hover:brightness-110">Оформить расход</button>
+                        <a href="{% url 'sklad_logic:dashboard' %}" class="flex-1 inline-flex justify-center items-center px-[24px] py-[8px] text-sprout border border-sprout rounded-buttons text-body-sm font-medium bg-transparent transition-colors hover:bg-sprout/5 text-center">Отмена</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-20">
+            <div class="bg-white rounded-cards p-24">
+                <h2 class="text-heading-sm font-bold text-slate-ink mb-16">Доступно на складах</h2>
+                <table class="w-full divide-y divide-dew">
+                    <thead>
+                        <tr>
+                            <th class="px-8 py-4 text-left text-caption font-medium text-ash uppercase">Товар</th>
+                            <th class="px-8 py-4 text-left text-caption font-medium text-ash uppercase">Склад</th>
+                            <th class="px-8 py-4 text-right text-caption font-medium text-ash uppercase">Кол-во</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-dew">
+                        {% for s in available_stock %}
+                        <tr class="hover:bg-parchment transition-colors">
+                            <td class="px-8 py-4 text-body-sm text-slate-ink">{{ s.product }}</td>
+                            <td class="px-8 py-4 text-body-sm text-ash">{{ s.warehouse }}</td>
+                            <td class="px-8 py-4 text-body-sm text-right font-semibold text-slate-ink">{{ s.qty }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="3" class="px-8 py-20 text-center text-body-sm text-ash">Нет товаров</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="bg-white rounded-cards p-24">
+                <h2 class="text-heading-sm font-bold text-slate-ink mb-16">Партии (FEFO порядок)</h2>
+                <table class="w-full divide-y divide-dew">
+                    <thead>
+                        <tr>
+                            <th class="px-8 py-4 text-left text-caption font-medium text-ash uppercase">Товар</th>
+                            <th class="px-8 py-4 text-left text-caption font-medium text-ash uppercase">Склад</th>
+                            <th class="px-8 py-4 text-right text-caption font-medium text-ash uppercase">Кол-во</th>
+                            <th class="px-8 py-4 text-right text-caption font-medium text-ash uppercase">Годен до</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-dew">
+                        {% for b in batches_detail %}
+                        <tr class="hover:bg-parchment transition-colors">
+                            <td class="px-8 py-4 text-body-sm text-slate-ink">{{ b.product }}</td>
+                            <td class="px-8 py-4 text-body-sm text-ash">{{ b.warehouse }}</td>
+                            <td class="px-8 py-4 text-body-sm text-right font-semibold text-slate-ink">{{ b.qty }}</td>
+                            <td class="px-8 py-4 text-body-sm text-right text-ash">{{ b.expire|date:"d.m.Y" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="px-8 py-20 text-center text-body-sm text-ash">Нет активных партий</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="mt-16">
+            <a href="{% url 'sklad_logic:dashboard' %}" class="text-body-sm text-ash hover:text-slate-ink transition-colors inline-flex items-center gap-5">
+                <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                На главную
+            </a>
+        </div>
+    </div>
+</main>
+{% endblock %}

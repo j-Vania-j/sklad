@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Остатки | Склад{% endblock %}
+
+{% block content %}
+<main class="py-32 px-12">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex items-center justify-between mb-20">
+            <div>
+                <h1 class="text-[22px] font-bold text-slate-ink tracking-[-0.33px]">Остатки по складам</h1>
+                <p class="mt-5 text-body-sm text-ash">Текущее наличие товаров на складах</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-cards p-20 mb-20">
+            <form method="get" class="flex flex-col sm:flex-row gap-12 items-end">
+                <div class="w-full sm:w-72">
+                    <label class="block text-caption font-medium text-ash mb-4">Склад</label>
+                    <select name="warehouse" class="w-full px-12 py-8 bg-transparent border border-dew rounded-chips text-slate-ink outline-none focus:border-slate-ink transition-colors">
+                        <option value="">Все склады</option>
+                        {% for w in warehouses %}
+                        <option value="{{ w.id }}" {% if selected_warehouse|stringformat:"s" == w.id|stringformat:"s" %}selected{% endif %}>{{ w.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="px-20 py-[8px] bg-sprout text-white rounded-buttons text-body-sm font-semibold transition-colors hover:brightness-110">Показать</button>
+            </form>
+        </div>
+
+        <div class="bg-white rounded-cards overflow-hidden">
+            <table class="w-full divide-y divide-dew">
+                <thead>
+                    <tr>
+                        <th class="px-12 py-8 text-left text-caption font-medium text-ash uppercase">Товар</th>
+                        <th class="px-12 py-8 text-left text-caption font-medium text-ash uppercase">Артикул</th>
+                        <th class="px-12 py-8 text-left text-caption font-medium text-ash uppercase">Склад</th>
+                        <th class="px-12 py-8 text-right text-caption font-medium text-ash uppercase">Количество</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-dew">
+                    {% for s in stocks %}
+                    <tr class="hover:bg-parchment transition-colors">
+                        <td class="px-12 py-8 text-body-sm font-medium text-slate-ink">{{ s.product }}</td>
+                        <td class="px-12 py-8"><code class="px-5 py-1.5 bg-parchment rounded-badges text-caption text-slate-ink">{{ s.sku }}</code></td>
+                        <td class="px-12 py-8 text-body-sm text-ash">{{ s.warehouse }}</td>
+                        <td class="px-12 py-8 text-body-sm text-right font-semibold text-slate-ink">{{ s.quantity }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4" class="px-12 py-32 text-center text-body-sm text-ash">Нет товаров на складах</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-16">
+            <a href="{% url 'sklad_logic:dashboard' %}" class="text-body-sm text-ash hover:text-slate-ink transition-colors inline-flex items-center gap-5">
+                <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                На главную
+            </a>
+        </div>
+    </div>
+</main>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Поставщики | Склад{% endblock %}
+
+{% block content %}
+<main class="py-32 px-12">
+    <div class="max-w-5xl mx-auto">
+        <div class="flex items-center justify-between mb-20">
+            <div>
+                <h1 class="text-[22px] font-bold text-slate-ink tracking-[-0.33px]">Поставщики</h1>
+                <p class="mt-5 text-body-sm text-ash">Справочник поставщиков и контакты</p>
+            </div>
+            <a href="{% url 'sklad_logic:supplier_add' %}" class="inline-flex items-center px-16 py-[8px] bg-sprout text-white rounded-buttons text-body-sm font-semibold transition-colors hover:brightness-110">+ Поставщика</a>
+        </div>
+
+        <div class="bg-white rounded-cards overflow-hidden">
+            <table class="w-full divide-y divide-dew">
+                <thead>
+                    <tr>
+                        <th class="px-12 py-8 text-left text-caption font-medium text-ash uppercase">Название</th>
+                        <th class="px-12 py-8 text-left text-caption font-medium text-ash uppercase">Телефон</th>
+                        <th class="px-12 py-8 text-left text-caption font-medium text-ash uppercase">Email</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-dew">
+                    {% for s in suppliers %}
+                    <tr class="hover:bg-parchment transition-colors">
+                        <td class="px-12 py-8 text-body-sm font-medium text-slate-ink">{{ s.name }}</td>
+                        <td class="px-12 py-8 text-body-sm text-ash">{{ s.contact_phone }}</td>
+                        <td class="px-12 py-8 text-body-sm text-ash">{{ s.email }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="3" class="px-12 py-32 text-center">
+                        <p class="text-body-sm text-ash">Нет поставщиков</p>
+                        <a href="{% url 'sklad_logic:supplier_add' %}" class="mt-6 inline-block px-[24px] py-[8px] text-sprout border border-sprout rounded-buttons text-body-sm font-medium transition-colors hover:bg-sprout/5">Добавить</a>
+                    </td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-16">
+            <a href="{% url 'sklad_logic:dashboard' %}" class="text-body-sm text-ash hover:text-slate-ink transition-colors inline-flex items-center gap-5">
+                <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                На главную
+            </a>
+        </div>
+    </div>
+</main>
+{% endblock %}

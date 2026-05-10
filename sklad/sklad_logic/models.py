@@ -25,10 +25,16 @@ class Products(models.Model):
     category = models.ForeignKey(Categories, related_name="products", on_delete=models.PROTECT,)
     unit = models.CharField(max_length=50)
 
+    def __str__(self):
+        return f"{self.name} ({self.sku})"
+
 class Warehouses(models.Model):
     name = models.CharField(max_length=100)
     address = models.CharField(max_length=255)
     capacity = models.IntegerField(default=0)
+
+    def __str__(self):
+        return self.name
 
 class Suppliers(models.Model):
     name = models.CharField(max_length=200)
@@ -39,6 +45,9 @@ class Suppliers(models.Model):
             )
         ])
     email = models.EmailField(default=" ")
+
+    def __str__(self):
+        return self.name
 
 
 class Batches(models.Model):

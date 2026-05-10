@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Отчеты | Склад{% endblock %}
+
+{% block content %}
+<main class="py-32 px-12">
+    <div class="max-w-7xl mx-auto">
+        <div class="mb-32">
+            <h1 class="text-[22px] font-bold text-slate-ink tracking-[-0.33px]">Отчеты и аналитика</h1>
+            <p class="mt-5 text-body-sm text-ash">Агрегированные данные по складу</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-16 mb-32">
+            <div class="bg-white rounded-cards p-24 text-center">
+                <div class="text-display font-bold text-sprout">{{ total_products }}</div>
+                <div class="text-body-sm text-ash mt-4">Всего товаров</div>
+            </div>
+            <div class="bg-white rounded-cards p-24 text-center">
+                <div class="text-display font-bold text-tangerine-cta">{{ expired_batches }}</div>
+                <div class="text-body-sm text-ash mt-4">Просроченных партий</div>
+            </div>
+            <div class="bg-white rounded-cards p-24 text-center">
+                <div class="text-display font-bold text-iris">{{ critical_stock|length }}</div>
+                <div class="text-body-sm text-ash mt-4">Товаров с ост. < 10</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-20">
+            <div class="bg-white rounded-cards p-24">
+                <h2 class="text-heading-sm font-bold text-slate-ink mb-16">Критический остаток</h2>
+                <table class="w-full divide-y divide-dew">
+                    <thead>
+                        <tr>
+                            <th class="px-12 py-6 text-left text-caption font-medium text-ash uppercase">Товар</th>
+                            <th class="px-12 py-6 text-right text-caption font-medium text-ash uppercase">Остаток</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-dew">
+                        {% for item in critical_stock %}
+                        <tr class="hover:bg-parchment transition-colors">
+                            <td class="px-12 py-6 text-body-sm font-medium text-slate-ink">{{ item.name }}</td>
+                            <td class="px-12 py-6 text-body-sm text-right font-semibold text-tangerine-cta">{{ item.qty }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="2" class="px-12 py-16 text-center text-body-sm text-ash">Нет критических остатков</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="bg-white rounded-cards p-24">
+                <h2 class="text-heading-sm font-bold text-slate-ink mb-16">Топ движений (оборачиваемость)</h2>
+                <table class="w-full divide-y divide-dew">
+                    <thead>
+                        <tr>
+                            <th class="px-12 py-6 text-left text-caption font-medium text-ash uppercase">#</th>
+                            <th class="px-12 py-6 text-left text-caption font-medium text-ash uppercase">Товар</th>
+                            <th class="px-12 py-6 text-right text-caption font-medium text-ash uppercase">Операций</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-dew">
+                        {% for item in top_moving %}
+                        <tr class="hover:bg-parchment transition-colors">
+                            <td class="px-12 py-6 text-body-sm text-ash">{{ item.rank }}</td>
+                            <td class="px-12 py-6 text-body-sm font-medium text-slate-ink">{{ item.name }}</td>
+                            <td class="px-12 py-6 text-body-sm text-right font-semibold text-sprout">{{ item.moves }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="3" class="px-12 py-16 text-center text-body-sm text-ash">Нет данных</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="bg-white rounded-cards p-24 lg:col-span-2">
+                <h2 class="text-heading-sm font-bold text-slate-ink mb-16">Партии с истекающим сроком (ближайшие 30 дней)</h2>
+                <table class="w-full divide-y divide-dew">
+                    <thead>
+                        <tr>
+                            <th class="px-12 py-6 text-left text-caption font-medium text-ash uppercase">Товар</th>
+                            <th class="px-12 py-6 text-left text-caption font-medium text-ash uppercase">Склад</th>
+                            <th class="px-12 py-6 text-right text-caption font-medium text-ash uppercase">Цена</th>
+                            <th class="px-12 py-6 text-right text-caption font-medium text-ash uppercase">Годен до</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-dew">
+                        {% for item in expiring_soon %}
+                        <tr class="hover:bg-parchment transition-colors">
+                            <td class="px-12 py-6 text-body-sm font-medium text-slate-ink">{{ item.product }}</td>
+                            <td class="px-12 py-6 text-body-sm text-ash">{{ item.warehouse }}</td>
+                            <td class="px-12 py-6 text-body-sm text-right text-ash">{{ item.price }}</td>
+                            <td class="px-12 py-6 text-body-sm text-right font-semibold text-tangerine-cta">{{ item.expires|date:"d.m.Y" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="px-12 py-16 text-center text-body-sm text-ash">Нет истекающих партий</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="mt-16">
+            <a href="{% url 'sklad_logic:dashboard' %}" class="text-body-sm text-ash hover:text-slate-ink transition-colors inline-flex items-center gap-5">
+                <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                На главную
+            </a>
+        </div>
+    </div>
+</main>
+{% endblock %}
