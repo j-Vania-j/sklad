@@ -16,8 +16,17 @@
                     <a href="{% url 'sklad_logic:dashboard' %}" class="text-body font-semibold text-white tracking-tight hover:text-white/80 transition-colors">Складская Система</a>
                 </div>
                 <div class="flex items-center gap-8">
-                    <a href="{% url 'sklad_logic:dashboard' %}" class="text-body text-white/80 hover:text-white transition-colors">Главная</a>
-                    <a href="{% url 'sklad_logic:products_list' %}" class="px-[16px] py-[6px] bg-amber-nav text-white rounded-buttons text-body-sm font-medium transition-colors">Товары</a>
+                    {% if user.is_authenticated %}
+                    <span class="text-body-sm text-fog">{% if user.is_superuser %}Админ{% elif perms.sklad_logic.change_products %}Менеджер{% else %}Наблюдатель{% endif %}</span>
+                    <span class="text-body-sm text-white/80">{{ user.username }}</span>
+                    <form method="post" action="{% url 'account_logout' %}" class="inline">
+                        {% csrf_token %}
+                        <button type="submit" class="px-4 py-[6px] bg-transparent text-white/80 border border-white/30 rounded-buttons text-body-sm font-medium transition-colors hover:text-white hover:border-white/60">Выйти</button>
+                    </form>
+                    {% else %}
+                    <a href="{% url 'account_login' %}" class="text-body-sm text-white/80 hover:text-white transition-colors">Войти</a>
+                    <a href="{% url 'account_signup' %}" class="px-4 py-[6px] bg-amber-nav text-white rounded-buttons text-body-sm font-medium transition-colors">Регистрация</a>
+                    {% endif %}
                 </div>
             </div>
         </div>

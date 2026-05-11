@@ -2,22 +2,28 @@ from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, ListView, TemplateView, FormView
 from django.db import connection, transaction
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from .models import Products, Categories, Warehouses, Suppliers, Batches, Transactions
 from .forms import ProductForm, CategoryForm, WarehouseForm, SupplierForm
 
 
-class DashboardView(TemplateView):
+class LandingView(TemplateView):
+    template_name = "landing.html"
+
+
+class DashboardView(LoginRequiredMixin, TemplateView):
     template_name = "sklad_logic/dashboard.html"
 
 
-class AddProductView(CreateView):
+class AddProductView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Products
     form_class = ProductForm
     template_name = "sklad_logic/add_product.html"
     success_url = reverse_lazy("sklad_logic:products_list")
+    permission_required = "sklad_logic.add_product"
 
 
-class ListProductView(ListView):
+class ListProductView(LoginRequiredMixin, ListView):
     model = Products
     template_name = "sklad_logic/list_product.html"
     context_object_name = "products"
@@ -66,14 +72,15 @@ class ListProductView(ListView):
         return ctx
 
 
-class AddCategoryView(CreateView):
+class AddCategoryView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Categories
     form_class = CategoryForm
     template_name = "sklad_logic/add_category.html"
     success_url = reverse_lazy("sklad_logic:products_list")
+    permission_required = "sklad_logic.add_category"
 
 
-class ListCategoriesView(ListView):
+class ListCategoriesView(LoginRequiredMixin, ListView):
     model = Categories
     template_name = "sklad_logic/list_category.html"
     context_object_name = "categories"
@@ -98,7 +105,7 @@ class ListCategoriesView(ListView):
 
 # --- Склады ---
 
-class ListWarehousesView(TemplateView):
+class ListWarehousesView(LoginRequiredMixin, TemplateView):
     template_name = "sklad_logic/list_warehouse.html"
 
     def get_context_data(self, **kwargs):
@@ -119,31 +126,33 @@ class ListWarehousesView(TemplateView):
         return ctx
 
 
-class AddWarehouseView(CreateView):
+class AddWarehouseView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Warehouses
     form_class = WarehouseForm
     template_name = "sklad_logic/add_warehouse.html"
     success_url = reverse_lazy("sklad_logic:warehouses_list")
+    permission_required = "sklad_logic.add_warehouse"
 
 
 # --- Поставщики ---
 
-class ListSuppliersView(ListView):
+class ListSuppliersView(LoginRequiredMixin, ListView):
     model = Suppliers
     template_name = "sklad_logic/list_supplier.html"
     context_object_name = "suppliers"
 
 
-class AddSupplierView(CreateView):
+class AddSupplierView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Suppliers
     form_class = SupplierForm
     template_name = "sklad_logic/add_supplier.html"
     success_url = reverse_lazy("sklad_logic:suppliers_list")
+    permission_required = "sklad_logic.add_supplier"
 
 
 # --- Остатки по складам ---
 
-class StockBalancesView(TemplateView):
+class StockBalancesView(LoginRequiredMixin, TemplateView):
     template_name = "sklad_logic/stock_balances.html"
 
     def get_context_data(self, **kwargs):
@@ -183,7 +192,7 @@ class StockBalancesView(TemplateView):
 
 # --- Партии товара ---
 
-class ProductBatchesView(TemplateView):
+class ProductBatchesView(LoginRequiredMixin, TemplateView):
     template_name = "sklad_logic/product_batches.html"
 
     def get_context_data(self, **kwargs):
@@ -211,9 +220,10 @@ class ProductBatchesView(TemplateView):
 
 # --- Приход товара ---
 
-class IncomingStockView(FormView):
+class IncomingStockView(LoginRequiredMixin, PermissionRequiredMixin, FormView):
     template_name = "sklad_logic/incoming_stock.html"
     success_url = reverse_lazy("sklad_logic:stock_balances")
+    permission_required = "sklad_logic.add_batch"
 
     def get_form(self):
         from django import forms as f
@@ -279,9 +289,10 @@ class IncomingStockView(FormView):
 
 # --- Расход товара (FEFO) ---
 
-class OutgoingStockView(FormView):
+class OutgoingStockView(LoginRequiredMixin, PermissionRequiredMixin, FormView):
     template_name = "sklad_logic/outgoing_stock.html"
     success_url = reverse_lazy("sklad_logic:stock_balances")
+    permission_required = "sklad_logic.change_batch"
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -374,9 +385,10 @@ class OutgoingStockView(FormView):
 
 # --- Перемещение между складами ---
 
-class StockTransferView(FormView):
+class StockTransferView(LoginRequiredMixin, PermissionRequiredMixin, FormView):
     template_name = "sklad_logic/stock_transfer.html"
     success_url = reverse_lazy("sklad_logic:stock_balances")
+    permission_required = "sklad_logic.add_batch"
 
     def get_form(self):
         from django import forms as f
@@ -463,7 +475,7 @@ class StockTransferView(FormView):
 
 # --- История движений ---
 
-class TransactionHistoryView(TemplateView):
+class TransactionHistoryView(LoginRequiredMixin, TemplateView):
     template_name = "sklad_logic/transaction_history.html"
 
     def get_context_data(self, **kwargs):
@@ -489,7 +501,7 @@ class TransactionHistoryView(TemplateView):
 
 # --- Отчеты ---
 
-class ReportsView(TemplateView):
+class ReportsView(LoginRequiredMixin, TemplateView):
     template_name = "sklad_logic/reports.html"
 
     def get_context_data(self, **kwargs):

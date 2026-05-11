@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
-    DashboardView, AddProductView, ListProductView,
+    LandingView, DashboardView, AddProductView, ListProductView,
     AddCategoryView, ListCategoriesView,
     ListWarehousesView, AddWarehouseView,
     ListSuppliersView, AddSupplierView,
@@ -12,6 +12,7 @@ from .views import (
 
 app_name = "sklad_logic"
 urlpatterns = [
+    path("landing/", LandingView.as_view(), name="landing"),
     path("", DashboardView.as_view(), name="dashboard"),
 
     # Товары и категории

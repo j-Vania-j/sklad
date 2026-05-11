@@ -133,3 +133,9 @@ STATIC_URL = 'static/'
 TAILWIND_APP_NAME = "theme"
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+LOGIN_REDIRECT_URL = "/warehouse/"
+ACCOUNT_LOGOUT_REDIRECT_URL = "/"
+ACCOUNT_EMAIL_VERIFICATION = "none"
+ACCOUNT_LOGIN_METHODS = {"username"}
+ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = True
