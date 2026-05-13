@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Новый заказ | Склад{% endblock %}
+
+{% block content %}
+<main class="py-32 px-12">
+    <div class="max-w-4xl mx-auto">
+        <div class="text-center mb-20">
+            <h1 class="text-[22px] font-bold text-slate-ink tracking-[-0.33px]">
+                Новый заказ
+            </h1>
+            <p class="mt-6 text-body-sm text-ash">
+                Создание заказа клиента. При отгрузке товар будет списан со склада.
+            </p>
+        </div>
+
+        <form method="post" class="space-y-16" novalidate>
+            {% csrf_token %}
+            {{ formset.management_form }}
+
+            {% if form.errors or formset.non_form_errors %}
+            <div class="rounded-chips bg-parchment border border-dew p-12">
+                <h3 class="text-caption font-semibold text-tangerine-cta">Ошибка при сохранении</h3>
+                {% for error in form.non_field_errors %}
+                    <p class="text-caption text-tangerine-cta">{{ error }}</p>
+                {% endfor %}
+                {% for error in formset.non_form_errors %}
+                    <p class="text-caption text-tangerine-cta">{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div>
+                <label class="block text-body-sm font-medium text-slate-ink mb-5">
+                    Клиент <span class="text-tangerine-cta">*</span>
+                </label>
+                {{ form.customer_name }}
+                {% for error in form.customer_name.errors %}
+                    <p class="mt-5 text-caption text-tangerine-cta">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div>
+                <h2 class="text-heading-sm font-bold text-slate-ink mb-12">Позиции заказа</h2>
+
+                {% for f in formset %}
+                <div class="flex gap-10 items-end mb-10 p-12 bg-parchment rounded-chips">
+                    <div class="flex-1">
+                        <label class="block text-caption font-medium text-ash mb-4">Товар</label>
+                        {{ f.product }}
+                    </div>
+                    <div class="w-48">
+                        <label class="block text-caption font-medium text-ash mb-4">Кол-во</label>
+                        {{ f.quantity }}
+                    </div>
+                    <div class="flex items-center pb-4">
+                        {{ f.DELETE }}
+                        <label for="{{ f.DELETE.id_for_label }}" class="text-caption text-tangerine-cta ml-4 cursor-pointer">Удалить</label>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="pt-16 border-t border-dew">
+                <div class="flex flex-col sm:flex-row gap-10">
+                    <button type="submit" class="flex-1 inline-flex justify-center items-center px-20 py-[8px] bg-sprout text-white rounded-buttons text-body-sm font-semibold transition-colors hover:brightness-110">
+                        Создать заказ
+                    </button>
+                    <a href="{% url 'sklad_logic:orders_list' %}" class="flex-1 inline-flex justify-center items-center px-[24px] py-[8px] text-sprout border border-sprout rounded-buttons text-body-sm font-medium bg-transparent transition-colors hover:bg-sprout/5 text-center">
+                        Отмена
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</main>
+{% endblock %}

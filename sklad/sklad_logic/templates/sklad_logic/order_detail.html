@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Заказ №{{ order.id }} | Склад{% endblock %}
+
+{% block content %}
+<main class="py-32 px-12">
+    <div class="max-w-5xl mx-auto">
+        <div class="mb-20">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-[22px] font-bold text-slate-ink tracking-[-0.33px]">Заказ №{{ order.id }}</h1>
+                    <p class="mt-5 text-body-sm text-ash">Клиент: <span class="font-medium text-slate-ink">{{ order.customer_name }}</span></p>
+                </div>
+                <div class="flex items-center gap-8">
+                    {% if order.status == "NEW" %}
+                    <span class="px-8 py-2 inline-flex text-body-sm font-semibold rounded-badges bg-amber-nav/10 text-amber-nav">Новый</span>
+                    <form method="post" action="{% url 'sklad_logic:order_ship' order.id %}" class="inline">
+                        {% csrf_token %}
+                        <button type="submit" class="px-12 py-[6px] bg-sprout text-white rounded-buttons text-body-sm font-semibold transition-colors hover:brightness-110">Отгрузить</button>
+                    </form>
+                    <form method="post" action="{% url 'sklad_logic:order_cancel' order.id %}" class="inline" onsubmit="return confirm('Отменить заказ?')">
+                        {% csrf_token %}
+                        <button type="submit" class="px-12 py-[6px] bg-tangerine-cta text-white rounded-buttons text-body-sm font-semibold transition-colors hover:brightness-110">Отменить</button>
+                    </form>
+                    {% elif order.status == "SHIPPED" %}
+                    <span class="px-8 py-2 inline-flex text-body-sm font-semibold rounded-badges bg-sprout/10 text-sprout">Отгружен</span>
+                    {% else %}
+                    <span class="px-8 py-2 inline-flex text-body-sm font-semibold rounded-badges bg-tangerine-cta/10 text-tangerine-cta">Отменен</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="mt-8 flex gap-16 text-body-sm text-ash">
+                <span>Создан: {{ order.created_at|date:"d.m.Y H:i" }}</span>
+                {% if order.shipped_at %}
+                <span>Отгружен: {{ order.shipped_at|date:"d.m.Y" }}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="bg-white rounded-cards overflow-hidden">
+            <table class="w-full divide-y divide-dew">
+                <thead>
+                    <tr>
+                        <th class="px-12 py-8 text-left text-caption font-medium text-ash uppercase">Товар</th>
+                        <th class="px-12 py-8 text-right text-caption font-medium text-ash uppercase">Запрошено</th>
+                        <th class="px-12 py-8 text-right text-caption font-medium text-ash uppercase">Отгружено</th>
+                        <th class="px-12 py-8 text-right text-caption font-medium text-ash uppercase">Статус</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-dew">
+                    {% for item in items %}
+                    <tr class="hover:bg-parchment transition-colors">
+                        <td class="px-12 py-8 text-body-sm font-medium text-slate-ink">{{ item.product_name }}</td>
+                        <td class="px-12 py-8 text-body-sm text-right text-slate-ink">{{ item.requested }}</td>
+                        <td class="px-12 py-8 text-body-sm text-right text-slate-ink">{{ item.fulfilled }}</td>
+                        <td class="px-12 py-8 text-right">
+                            {% if item.fulfilled >= item.requested %}
+                            <span class="px-5 py-1.5 inline-flex text-caption font-semibold rounded-badges bg-sprout/10 text-sprout">Выполнено</span>
+                            {% elif item.fulfilled > 0 %}
+                            <span class="px-5 py-1.5 inline-flex text-caption font-semibold rounded-badges bg-amber-nav/10 text-amber-nav">Частично</span>
+                            {% else %}
+                            <span class="px-5 py-1.5 inline-flex text-caption font-semibold rounded-badges bg-tangerine-cta/10 text-tangerine-cta">Не отгружено</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4" class="px-12 py-32 text-center text-body-sm text-ash">Нет позиций в заказе</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-16">
+            <a href="{% url 'sklad_logic:orders_list' %}" class="text-body-sm text-ash hover:text-slate-ink transition-colors inline-flex items-center gap-5">
+                <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                К списку заказов
+            </a>
+        </div>
+    </div>
+</main>
+{% endblock %}

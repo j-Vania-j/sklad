@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Заказы | Склад{% endblock %}
+
+{% block content %}
+<main class="py-32 px-12">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex items-center justify-between mb-20">
+            <div>
+                <h1 class="text-[22px] font-bold text-slate-ink tracking-[-0.33px]">Заказы</h1>
+                <p class="mt-5 text-body-sm text-ash">Все заказы клиентов</p>
+            </div>
+            <a href="{% url 'sklad_logic:order_add' %}" class="inline-flex items-center px-16 py-[8px] bg-sprout text-white rounded-buttons text-body-sm font-semibold transition-colors hover:brightness-110">+ Заказ</a>
+        </div>
+
+        <div class="bg-white rounded-cards p-20 mb-20">
+            <form method="get" class="flex flex-col sm:flex-row gap-12 items-end">
+                <div class="w-full sm:w-72">
+                    <label class="block text-caption font-medium text-ash mb-4">Статус</label>
+                    <select name="status" class="w-full px-12 pr-32 py-8 bg-transparent border border-dew rounded-chips text-slate-ink outline-none focus:border-slate-ink transition-colors appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20fill%3D%27none%27%20viewBox%3D%270%200%2020%2020%27%3E%3Cpath%20stroke%3D%27%234B5563%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%20stroke-width%3D%271.5%27%20d%3D%27M6%208l4%204%204-4%27%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_0.75rem_center] bg-[length:1.25rem]">
+                        <option value="">Все статусы</option>
+                        <option value="NEW" {% if selected_status == "NEW" %}selected{% endif %}>Новый</option>
+                        <option value="SHIPPED" {% if selected_status == "SHIPPED" %}selected{% endif %}>Отгружен</option>
+                        <option value="CANCELLED" {% if selected_status == "CANCELLED" %}selected{% endif %}>Отменен</option>
+                    </select>
+                </div>
+                <button type="submit" class="px-20 py-[8px] bg-sprout text-white rounded-buttons text-body-sm font-semibold transition-colors hover:brightness-110">Фильтр</button>
+            </form>
+        </div>
+
+        <div class="bg-white rounded-cards overflow-hidden">
+            <table class="w-full divide-y divide-dew">
+                <thead>
+                    <tr>
+                        <th class="px-12 py-8 text-left text-caption font-medium text-ash uppercase">№</th>
+                        <th class="px-12 py-8 text-left text-caption font-medium text-ash uppercase">Клиент</th>
+                        <th class="px-12 py-8 text-left text-caption font-medium text-ash uppercase">Статус</th>
+                        <th class="px-12 py-8 text-left text-caption font-medium text-ash uppercase">Создан</th>
+                        <th class="px-12 py-8 text-left text-caption font-medium text-ash uppercase">Отгружен</th>
+                        <th class="px-12 py-8 text-right text-caption font-medium text-ash uppercase">Позиций</th>
+                        <th class="px-12 py-8 text-center text-caption font-medium text-ash uppercase"></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-dew">
+                    {% for o in orders %}
+                    <tr class="hover:bg-parchment transition-colors">
+                        <td class="px-12 py-8 whitespace-nowrap"><code class="px-5 py-1.5 bg-parchment rounded-badges text-caption text-slate-ink">{{ o.id }}</code></td>
+                        <td class="px-12 py-8 whitespace-nowrap"><div class="text-body-sm font-medium text-slate-ink">{{ o.customer_name }}</div></td>
+                        <td class="px-12 py-8 whitespace-nowrap">
+                            {% if o.status == "NEW" %}
+                            <span class="px-5 py-1.5 inline-flex text-caption font-semibold rounded-badges bg-amber-nav/10 text-amber-nav">Новый</span>
+                            {% elif o.status == "SHIPPED" %}
+                            <span class="px-5 py-1.5 inline-flex text-caption font-semibold rounded-badges bg-sprout/10 text-sprout">Отгружен</span>
+                            {% else %}
+                            <span class="px-5 py-1.5 inline-flex text-caption font-semibold rounded-badges bg-tangerine-cta/10 text-tangerine-cta">Отменен</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-12 py-8 whitespace-nowrap text-body-sm text-ash">{{ o.created_at|date:"d.m.Y H:i" }}</td>
+                        <td class="px-12 py-8 whitespace-nowrap text-body-sm text-ash">{% if o.shipped_at %}{{ o.shipped_at|date:"d.m.Y" }}{% else %}—{% endif %}</td>
+                        <td class="px-12 py-8 whitespace-nowrap text-body-sm text-right font-semibold text-slate-ink">{{ o.items_count }}</td>
+                        <td class="px-12 py-8 text-center">
+                            <a href="{% url 'sklad_logic:order_detail' o.id %}" class="text-body-sm text-sky-link hover:underline">Детали</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="7" class="px-12 py-32 text-center">
+                        <p class="text-body-sm text-ash">Заказов нет</p>
+                    </td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-16">
+            <a href="{% url 'sklad_logic:dashboard' %}" class="text-body-sm text-ash hover:text-slate-ink transition-colors inline-flex items-center gap-5">
+                <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                На главную
+            </a>
+        </div>
+    </div>
+</main>
+{% endblock %}

@@ -180,4 +180,52 @@ class Command(BaseCommand):
                                 [batch_id, out_qty, out_date],
                             )
 
+                # === Заказы ===
+                self.stdout.write("Заказы...")
+                cursor.execute("SELECT id FROM sklad_logic_products")
+                all_product_ids = [r[0] for r in cursor.fetchall()]
+
+                orders_data = [
+                    ("Иван Петров", "NEW", today - timedelta(days=2), None),
+                    ("ООО «Магазин №1»", "SHIPPED", today - timedelta(days=10), today - timedelta(days=8)),
+                    ("ИП Сидоров", "NEW", today - timedelta(days=1), None),
+                    ("ЧУП «Продукты»", "SHIPPED", today - timedelta(days=15), today - timedelta(days=12)),
+                    ("Петр Иванов", "CANCELLED", today - timedelta(days=20), None),
+                    ("ООО «Торговый дом»", "SHIPPED", today - timedelta(days=7), today - timedelta(days=5)),
+                    ("ИП Кузнецов", "NEW", today, None),
+                ]
+
+                for customer, status, created, shipped in orders_data:
+                    cursor.execute(
+                        """
+                        INSERT INTO sklad_logic_orders (customer_name, status, created_at, shipped_at)
+                        VALUES (%s, %s, %s, %s)
+                        """,
+                        [customer, status, created, shipped],
+                    )
+                    cursor.execute(
+                        "SELECT currval(pg_get_serial_sequence('sklad_logic_orders', 'id'))"
+                    )
+                    order_id = cursor.fetchone()[0]
+
+                    # 1-4 позиции в заказе
+                    num_items = random.randint(1, 4)
+                    selected_products = random.sample(all_product_ids, min(num_items, len(all_product_ids)))
+                    for prod_id in selected_products:
+                        requested = random.randint(1, 50)
+                        if status == "SHIPPED":
+                            fulfilled = requested
+                        elif status == "CANCELLED":
+                            fulfilled = 0
+                        else:
+                            fulfilled = random.randint(0, requested)
+                        cursor.execute(
+                            """
+                            INSERT INTO sklad_logic_orderitems
+                                (order_id, product_id, quantity_requested, quantity_fullfilled)
+                            VALUES (%s, %s, %s, %s)
+                            """,
+                            [order_id, prod_id, requested, fulfilled],
+                        )
+
         self.stdout.write(self.style.SUCCESS("База данных заполнена тестовыми данными!"))

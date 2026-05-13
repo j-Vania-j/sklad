@@ -1,9 +1,10 @@
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, ListView, TemplateView, FormView
+from django.views.generic import CreateView, ListView, TemplateView, FormView, View
+from django.http import HttpResponseRedirect, Http404
 from django.db import connection, transaction
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from .models import Products, Categories, Warehouses, Suppliers, Batches, Transactions
+from .models import Products, Categories, Warehouses, Suppliers, Batches, Transactions, Orders, OrderItems
 from .forms import ProductForm, CategoryForm, WarehouseForm, SupplierForm
 
 
@@ -549,3 +550,203 @@ class ReportsView(LoginRequiredMixin, TemplateView):
                 for r in cursor.fetchall()
             ]
         return ctx
+
+
+# --- Заказы ---
+
+class ListOrdersView(LoginRequiredMixin, TemplateView):
+    template_name = "sklad_logic/list_orders.html"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        status_filter = self.request.GET.get("status", "")
+        with connection.cursor() as cursor:
+            if status_filter:
+                cursor.execute("""
+                    SELECT o.id, o.customer_name, o.status, o.created_at, o.shipped_at,
+                           (SELECT COUNT(*) FROM sklad_logic_orderitems oi WHERE oi.order_id = o.id) AS items_count
+                    FROM sklad_logic_orders o
+                    WHERE o.status = %s
+                    ORDER BY o.created_at DESC
+                """, [status_filter])
+            else:
+                cursor.execute("""
+                    SELECT o.id, o.customer_name, o.status, o.created_at, o.shipped_at,
+                           (SELECT COUNT(*) FROM sklad_logic_orderitems oi WHERE oi.order_id = o.id) AS items_count
+                    FROM sklad_logic_orders o
+                    ORDER BY o.created_at DESC
+                """)
+            ctx["orders"] = [
+                {"id": r[0], "customer_name": r[1], "status": r[2], "created_at": r[3],
+                 "shipped_at": r[4], "items_count": r[5]}
+                for r in cursor.fetchall()
+            ]
+        ctx["selected_status"] = status_filter
+        return ctx
+
+
+class OrderDetailView(LoginRequiredMixin, TemplateView):
+    template_name = "sklad_logic/order_detail.html"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        order_id = kwargs.get("order_id")
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT id, customer_name, status, created_at, shipped_at FROM sklad_logic_orders WHERE id = %s",
+                [order_id]
+            )
+            row = cursor.fetchone()
+            if not row:
+                raise Http404("Заказ не найден")
+            ctx["order"] = {
+                "id": row[0], "customer_name": row[1], "status": row[2],
+                "created_at": row[3], "shipped_at": row[4]
+            }
+            cursor.execute("""
+                SELECT oi.quantity_requested, oi.quantity_fullfilled, p.name
+                FROM sklad_logic_orderitems oi
+                JOIN sklad_logic_products p ON oi.product_id = p.id
+                WHERE oi.order_id = %s
+                ORDER BY p.name
+            """, [order_id])
+            ctx["items"] = [
+                {"requested": r[0], "fulfilled": r[1], "product_name": r[2]}
+                for r in cursor.fetchall()
+            ]
+        return ctx
+
+
+class CreateOrderView(LoginRequiredMixin, FormView):
+    template_name = "sklad_logic/add_order.html"
+    success_url = reverse_lazy("sklad_logic:orders_list")
+
+    def get_form(self):
+        from django import forms as f
+
+        class OrderForm(f.Form):
+            customer_name = f.CharField(
+                label="Клиент",
+                widget=f.TextInput(attrs={'class': 'w-full px-12 py-8 bg-transparent border border-dew rounded-chips text-slate-ink placeholder-ash outline-none focus:border-slate-ink transition-colors', 'placeholder': 'Иван Петров / ООО «Магазин»'})
+            )
+        return OrderForm(self.request.POST or None)
+
+    def get_context_data(self, **kwargs):
+        from django import forms as f
+        from django.forms import formset_factory
+
+        class ItemForm(f.Form):
+            product = f.ModelChoiceField(queryset=Products.objects.all(), widget=f.Select(attrs={'class': 'w-full px-12 py-8 bg-transparent border border-dew rounded-chips text-slate-ink outline-none focus:border-slate-ink transition-colors'}))
+            quantity = f.IntegerField(min_value=1, widget=f.NumberInput(attrs={'class': 'w-full px-12 py-8 bg-transparent border border-dew rounded-chips text-slate-ink outline-none focus:border-slate-ink transition-colors', 'placeholder': '10'}))
+
+        ctx = super().get_context_data(**kwargs)
+        OrderItemFormset = formset_factory(ItemForm, extra=3, can_delete=True)
+        if self.request.POST:
+            ctx["formset"] = OrderItemFormset(self.request.POST)
+        else:
+            ctx["formset"] = OrderItemFormset()
+        return ctx
+
+    def form_valid(self, form):
+        from django import forms as f
+        from django.forms import formset_factory
+
+        class ItemForm(f.Form):
+            product = f.ModelChoiceField(queryset=Products.objects.all())
+            quantity = f.IntegerField(min_value=1)
+        OrderItemFormset = formset_factory(ItemForm, extra=3, can_delete=True)
+        formset = OrderItemFormset(self.request.POST)
+
+        if not formset.is_valid():
+            return self.form_invalid(form)
+
+        items_data = []
+        for f_item in formset:
+            if f_item.cleaned_data and not f_item.cleaned_data.get("DELETE"):
+                items_data.append((f_item.cleaned_data["product"].id, f_item.cleaned_data["quantity"]))
+
+        if not items_data:
+            form.add_error(None, "Добавьте хотя бы одну позицию")
+            return self.form_invalid(form)
+
+        with transaction.atomic():
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    INSERT INTO sklad_logic_orders (customer_name, status, created_at, shipped_at)
+                    VALUES (%s, 'NEW', NOW(), NULL)
+                """, [form.cleaned_data["customer_name"]])
+                cursor.execute("SELECT currval(pg_get_serial_sequence('sklad_logic_orders', 'id'))")
+                order_id = cursor.fetchone()[0]
+                for prod_id, qty in items_data:
+                    cursor.execute("""
+                        INSERT INTO sklad_logic_orderitems (order_id, product_id, quantity_requested, quantity_fullfilled)
+                        VALUES (%s, %s, %s, 0)
+                    """, [order_id, prod_id, qty])
+
+        return super().form_valid(form)
+
+
+class OrderShipView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = "sklad_logic.change_batch"
+
+    def post(self, request, order_id):
+        with transaction.atomic():
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT status FROM sklad_logic_orders WHERE id = %s FOR UPDATE", [order_id])
+                row = cursor.fetchone()
+                if not row:
+                    raise Http404("Заказ не найден")
+                if row[0] != "NEW":
+                    return HttpResponseRedirect(reverse_lazy("sklad_logic:order_detail", args=[order_id]))
+
+                cursor.execute("""
+                    SELECT oi.id, oi.product_id, oi.quantity_requested, p.name
+                    FROM sklad_logic_orderitems oi
+                    JOIN sklad_logic_products p ON oi.product_id = p.id
+                    WHERE oi.order_id = %s
+                """, [order_id])
+                items = cursor.fetchall()
+
+                for item_id, prod_id, requested, prod_name in items:
+                    cursor.execute("""
+                        SELECT id, quantity, purchase_price, warehouse_id
+                        FROM sklad_logic_batches
+                        WHERE product_id = %s AND quantity > 0
+                        ORDER BY expire_date ASC, created_at ASC
+                        FOR UPDATE
+                    """, [prod_id])
+                    batches = cursor.fetchall()
+                    total = sum(b[1] for b in batches)
+
+                    if total < requested:
+                        return HttpResponseRedirect(reverse_lazy("sklad_logic:order_detail", args=[order_id]))
+
+                    remaining = requested
+                    for batch_id, qty, price, wh_id in batches:
+                        if remaining <= 0:
+                            break
+                        take = min(qty, remaining)
+                        cursor.execute("UPDATE sklad_logic_batches SET quantity = quantity - %s WHERE id = %s", [take, batch_id])
+                        cursor.execute("""
+                            INSERT INTO sklad_logic_transactions (batch_id, type, quantity, timestamp, user_id, comment)
+                            VALUES (%s, 'OUT', %s, NOW(), NULL, 'Отгрузка по заказу №' || %s::text)
+                        """, [batch_id, take, order_id])
+                        remaining -= take
+
+                    cursor.execute("UPDATE sklad_logic_orderitems SET quantity_fullfilled = %s WHERE id = %s", [requested, item_id])
+
+                cursor.execute(
+                    "UPDATE sklad_logic_orders SET status = 'SHIPPED', shipped_at = NOW() WHERE id = %s",
+                    [order_id]
+                )
+
+        return HttpResponseRedirect(reverse_lazy("sklad_logic:order_detail", args=[order_id]))
+
+
+class OrderCancelView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = "sklad_logic.change_orders"
+
+    def post(self, request, order_id):
+        with connection.cursor() as cursor:
+            cursor.execute("UPDATE sklad_logic_orders SET status = 'CANCELLED' WHERE id = %s AND status = 'NEW'", [order_id])
+        return HttpResponseRedirect(reverse_lazy("sklad_logic:order_detail", args=[order_id]))

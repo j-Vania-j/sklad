@@ -7,6 +7,8 @@ from .views import (
     StockBalancesView, ProductBatchesView,
     IncomingStockView, OutgoingStockView, StockTransferView,
     TransactionHistoryView, ReportsView,
+    ListOrdersView, OrderDetailView, CreateOrderView,
+    OrderShipView, OrderCancelView,
 )
 
 
@@ -43,4 +45,11 @@ urlpatterns = [
 
     # Отчеты
     path("reports/", ReportsView.as_view(), name="reports"),
+
+    # Заказы
+    path("orders/", ListOrdersView.as_view(), name="orders_list"),
+    path("orders/add/", CreateOrderView.as_view(), name="order_add"),
+    path("orders/<int:order_id>/", OrderDetailView.as_view(), name="order_detail"),
+    path("orders/<int:order_id>/ship/", OrderShipView.as_view(), name="order_ship"),
+    path("orders/<int:order_id>/cancel/", OrderCancelView.as_view(), name="order_cancel"),
 ]

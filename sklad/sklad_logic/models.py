@@ -72,7 +72,7 @@ class Orders(models.Model):
     customer_name = models.CharField(max_length=255)
     status = models.CharField(choices=OrderStatus.choices, max_length=10, default=OrderStatus.NEW)
     created_at = models.DateTimeField(auto_now_add=True)
-    shipped_at = models.DateTimeField(blank=True)
+    shipped_at = models.DateTimeField(blank=True, null=True)
 
 class OrderItems(models.Model):
     order = models.ForeignKey(Orders, on_delete=models.CASCADE, related_name="order_items")
